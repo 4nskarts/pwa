@@ -65,3 +65,28 @@ To solve the lab, perform a SQL injection UNION attack that retrieves all userna
 ## Solution
 
 The script is in `union-attack4.py`, you'll find the explanation there.
+
+
+# Lab: SQL injection attack, querying the database type and version on MySQL and Microsoft
+
+This lab contains a SQL injection vulnerability in the product category filter. You can use a UNION attack to retrieve the results from an injected query.
+
+To solve the lab, display the database version string.
+
+## Solution
+
+the script is in `union-attack5.py`, instead of making the comment using `--`,
+we use `#`. The rest of the code is self-explanatory.
+
+
+# Lab: SQL injection attack, listing the database contents on non-Oracle databases
+
+This lab contains a SQL injection vulnerability in the product category filter. The results from the query are returned in the application's response so you can use a UNION attack to retrieve data from other tables.
+
+The application has a login function, and the database contains a table that holds usernames and passwords. You need to determine the name of this table and the columns it contains, then retrieve the contents of the table to obtain the username and password of all users.
+
+To solve the lab, log in as the administrator user.
+
+## Solution
+
+The script is in `union-attack6.py`, this one was actually fun.
