@@ -23,3 +23,18 @@ contains **THREE** categories, I then solved the lab using the following injecti
 ```
 <base-url>/filter?category=Gifts%27+UNION+SELECT+NULL%2C+NULL%2C+NULL--
 ```
+
+# Lab: SQL injection UNION attack, finding a column containing text
+
+This lab contains a SQL injection vulnerability in the product category filter. The results from the query are returned in the application's response, so you can use a UNION attack to retrieve data from other tables. To construct such an attack, you first need to determine the number of columns returned by the query. You can do this using a technique you learned in a previous lab. The next step is to identify a column that is compatible with string data.
+
+The lab will provide a random value that you need to make appear within the query results. To solve the lab, perform a SQL injection UNION attack that returns an additional row containing the value provided. This technique helps you determine which columns are compatible with string data.
+
+## Solution
+
+the script I used in in `union-attack2.py`. I found the number of columns using
+`UNION SELECT NULL--`. Note that some db management systems, oracle for example
+require a proper `FROM <TABLE>` when using Selects. You can use a dummy table for that.
+
+I automated the search for the position of the column that is compatible with the type string,
+and just retrieved the required string from the query
