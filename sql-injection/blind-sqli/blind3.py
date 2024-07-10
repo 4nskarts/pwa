@@ -22,3 +22,5 @@ def make_req(cookies):
 
 # finding the injection point
 make_req({"TrackingId": f"iwGLh8GMjg7xmbtc' AS int--"})
+
+# the rest is in the solution (README.md)...
