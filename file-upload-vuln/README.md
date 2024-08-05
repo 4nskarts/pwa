@@ -1,42 +1,31 @@
 ```
 author: 0xUu
-date: Jun 10th, 2024
-topic: file upload vulnerability (portswigger academy)
+topic: file upload vulnerabilities
+date: August 8th, 2024
 ```
 
-# Basics of php (personal use)
+This README.md file is just an overview of what will be learned. It's in my own words (for learning purposes)
 
-PHP (Hypertext Preprocessor) is a widely-used, open-source server-side scripting language primarily designed for web development. It was created by Rasmus Lerdorf in 1994 and has since evolved into a powerful tool for creating dynamic web pages and web applications. PHP scripts are executed on the server, generating HTML which is then sent to the client's web browser.
+---
 
-We'll use it as a scripting language to run an exploit on the server.
-
-# The idea
+# What are file upload vulnerabilities?
 
 File upload vulnerabilities are when a web server allows users to upload files to its filesystem without sufficiently validating things like their name, type, contents, or size. Failing to properly enforce restrictions on these could mean that even a basic image upload function can be used to upload arbitrary and potentially dangerous files instead. This could even include server-side script files that enable remote code execution.
 
-
-# LAB1 - Remote code execution via web shell upload 
-
-I first tried to upload a normal image to the server. I was met with a success reponse, then created a simple php script that read the contents of the flag
-
-```php
-<?php echo file_get_contents('/home/carlos/secret'); ?> 
-```
-
-Uploading the file normally, I then use burp proxy to intercept traffic to my-account. I found that we make a GET request to `/files/avatars/OUR-FILES`. I sent this request to burp repeater and got the flag
+In some cases, the act of uploading the file is in itself enough to cause damage. Other attacks may involve a follow-up HTTP request for the file, typically to trigger its execution by the server.
 
 
----
+# What is the impact of file upload vulnerabilities?
 
-flag: `i4ym39xKQ77CEaRi0LvIqCeGABOjf8Sp`
+The impact of file upload vulnerabilities generally depends on two key factors:
+
+Which aspect of the file the website fails to validate properly, whether that be its size, type, contents, and so on.
+What restrictions are imposed on the file once it has been successfully uploaded.
+In the worst case scenario, the file's type isn't validated properly, and the server configuration allows certain types of file (such as .php and .jsp) to be executed as code. In this case, an attacker could potentially upload a server-side code file that functions as a web shell, effectively granting them full control over the server.
+
+If the filename isn't validated properly, this could allow an attacker to overwrite critical files simply by uploading a file with the same name. If the server is also vulnerable to directory traversal, this could mean attackers are even able to upload files to unanticipated locations.
+
+Failing to make sure that the size of the file falls within expected thresholds could also enable a form of denial-of-service (DoS) attack, whereby the attacker fills the available disk space.
 
 
-# LAB2 - Web shell upload via Content-Type restriction bypass
 
-This lab contains a vulnerable image upload function. It attempts to prevent users from uploading unexpected file types, but relies on checking user-controllable input to verify this.
-
-Here, we just change the `Content-Type` header in the POST request to match the allowed content type.
-
----
-
-flag: `YakMIXfWInuaOwIup9UuVbcU13iPmhII`
