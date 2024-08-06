@@ -27,5 +27,7 @@ If the filename isn't validated properly, this could allow an attacker to overwr
 
 Failing to make sure that the size of the file falls within expected thresholds could also enable a form of denial-of-service (DoS) attack, whereby the attacker fills the available disk space.
 
+---
 
+Enjoy the labs...
 
